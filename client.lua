@@ -51,13 +51,13 @@ local function CleanVehicle(vehicle)
 	local ped = PlayerPedId()
 	local pos = GetEntityCoords(ped)
 	TaskStartScenarioInPlace(ped, "WORLD_HUMAN_MAID_CLEAN", 0, true)
-	QBCore.Functions.Progressbar("cleaning_vehicle", Lang:t("progress.clean_veh"), math.random(10000, 20000), false, true, {
+	QBCore.Functions.Progressbar("cleaning_vehicle", "Cleaning the car...", math.random(10000, 20000), false, true, {
 		disableMovement = true,
 		disableCarMovement = true,
 		disableMouse = false,
 		disableCombat = true,
 	}, {}, {}, {}, function() -- Done
-		QBCore.Functions.Notify(Lang:t("success.cleaned_veh"))
+		QBCore.Functions.Notify("Vehicle cleaned!")
 		SetVehicleDirtLevel(vehicle, 0.1)
         SetVehicleUndriveable(vehicle, false)
 		WashDecalsFromVehicle(vehicle, 1.0)
@@ -66,14 +66,19 @@ local function CleanVehicle(vehicle)
 		ClearAllPedProps(ped)
 		ClearPedTasks(ped)
 	end, function() -- Cancel
-		QBCore.Functions.Notify(Lang:t("error.failed_notification"), "error")
+		QBCore.Functions.Notify("Failed!", "error")
 		ClearAllPedProps(ped)
 		ClearPedTasks(ped)
 	end)
 end
 
 local function IsBackEngine(vehModel)
-	if BackEngineVehicles[vehModel] then return true else return false end
+    for _, model in pairs(BackEngineVehicles) do
+        if GetHashKey(model) == vehModel then
+            return true
+        end
+    end
+    return false
 end
 
 local function RepairVehicleFull(vehicle)
@@ -82,8 +87,7 @@ local function RepairVehicleFull(vehicle)
     else
         SetVehicleDoorOpen(vehicle, 4, false, false)
     end
-	
-	QBCore.Functions.Progressbar("repair_vehicle", Lang:t("progress.repair_veh"), math.random(20000, 30000), false, true, {
+	QBCore.Functions.Progressbar("repair_vehicle", "Repairing vehicle..", math.random(20000, 30000), false, true, {
 		disableMovement = true,
 		disableCarMovement = true,
 		disableMouse = false,
@@ -94,7 +98,7 @@ local function RepairVehicleFull(vehicle)
 		flags = 16,
 	}, {}, {}, function() -- Done
 		StopAnimTask(PlayerPedId(), "mini@repair", "fixing_a_player", 1.0)
-		QBCore.Functions.Notify(Lang:t("success.repaired_veh"))
+		QBCore.Functions.Notify("Vehicle repaired!")
 		SetVehicleEngineHealth(vehicle, 1000.0)
 		SetVehicleEngineOn(vehicle, true, false)
 		SetVehicleTyreFixed(vehicle, 0)
@@ -110,7 +114,7 @@ local function RepairVehicleFull(vehicle)
 		TriggerServerEvent('qb-vehiclefailure:removeItem', "advancedrepairkit")
 	end, function() -- Cancel
 		StopAnimTask(PlayerPedId(), "mini@repair", "fixing_a_player", 1.0)
-		QBCore.Functions.Notify(Lang:t("error.failed_notification"), "error")
+		QBCore.Functions.Notify("Failed!", "error")
 		if (IsBackEngine(GetEntityModel(vehicle))) then
 			SetVehicleDoorShut(vehicle, 5, false)
 		else
@@ -125,7 +129,7 @@ local function RepairVehicle(vehicle)
     else
         SetVehicleDoorOpen(vehicle, 4, false, false)
     end
-	QBCore.Functions.Progressbar("repair_vehicle", Lang:t("progress.repair_veh"), math.random(10000, 20000), false, true, {
+	QBCore.Functions.Progressbar("repair_vehicle", "Repairing vehicle..", math.random(10000, 20000), false, true, {
 		disableMovement = true,
 		disableCarMovement = true,
 		disableMouse = false,
@@ -136,7 +140,7 @@ local function RepairVehicle(vehicle)
 		flags = 16,
 	}, {}, {}, function() -- Done
 		StopAnimTask(PlayerPedId(), "mini@repair", "fixing_a_player", 1.0)
-		QBCore.Functions.Notify(Lang:t("success.repaired_veh"))
+		QBCore.Functions.Notify("Vehicle repaired!")
 		SetVehicleEngineHealth(vehicle, 500.0)
 		SetVehicleEngineOn(vehicle, true, false)
 		SetVehicleTyreFixed(vehicle, 0)
@@ -152,13 +156,17 @@ local function RepairVehicle(vehicle)
 		TriggerServerEvent('qb-vehiclefailure:removeItem', "repairkit")
 	end, function() -- Cancel
 		StopAnimTask(PlayerPedId(), "mini@repair", "fixing_a_player", 1.0)
-		QBCore.Functions.Notify(Lang:t("error.failed_notification"), "error")
+		QBCore.Functions.Notify("Failed!", "error")
 		if (IsBackEngine(GetEntityModel(vehicle))) then
 			SetVehicleDoorShut(vehicle, 5, false)
 		else
 			SetVehicleDoorShut(vehicle, 4, false)
 		end
 	end)
+end
+
+local function notification(msg)
+	QBCore.Functions.Notify(msg)
 end
 
 local function isPedDrivingAVehicle()
@@ -169,7 +177,7 @@ local function isPedDrivingAVehicle()
 		if GetPedInVehicleSeat(vehicle, -1) == ped then
 			local class = GetVehicleClass(vehicle)
 			-- We don't want planes, helicopters, bicycles and trains
-			if class ~= 15 and class ~= 16 and class ~=21 and class ~=13 then
+			if class ~= 21 and class ~= 13 then
 				return true
 			end
 		end
@@ -203,10 +211,10 @@ local function fscale(inputValue, originalMin, originalMax, newBegin, newEnd, cu
 	curve = 10.0 ^ curve
 
 	if (inputValue < originalMin) then
-		inputValue = originalMin
+	  inputValue = originalMin
 	end
 	if inputValue > originalMax then
-		inputValue = originalMax
+	  inputValue = originalMax
 	end
 
 	OriginalRange = originalMax - originalMin
@@ -214,15 +222,15 @@ local function fscale(inputValue, originalMin, originalMax, newBegin, newEnd, cu
 	if (newEnd > newBegin) then
 		NewRange = newEnd - newBegin
 	else
-		NewRange = newBegin - newEnd
-		invFlag = 1
+	  NewRange = newBegin - newEnd
+	  invFlag = 1
 	end
 
 	zeroRefCurVal = inputValue - originalMin
 	normalizedCurVal  =  zeroRefCurVal / OriginalRange
 
 	if (originalMin > originalMax ) then
-		return 0
+	  return 0
 	end
 
 	if (invFlag == 0) then
@@ -275,20 +283,20 @@ RegisterNetEvent('qb-vehiclefailure:client:RepairVehicle', function()
 			else
 				ShowEnginePos = true
 			end
-    	else
-      		if #(pos - vehpos) > 4.9 then
-       			QBCore.Functions.Notify(Lang:t("error.out_range_veh"), "error")
-      		else
-       			QBCore.Functions.Notify(Lang:t("error.inside_veh"), "error")
-      		end
+    else
+      if #(pos - vehpos) > 4.9 then
+        QBCore.Functions.Notify("You are too far from the vehicle!", "error")
+      else
+        QBCore.Functions.Notify("You cannot repair a vehicle engine from the inside!", "error")
+      end
 		end
-  	else
-		if vehicle == nil or vehicle == 0 then
-			QBCore.Functions.Notify(Lang:t("error.not_near_veh"), "error")
-		else
-			QBCore.Functions.Notify(Lang:t("error.healthy_veh"), "error")
-		end
-	end
+  else
+    if vehicle == nil or vehicle == 0 then
+      QBCore.Functions.Notify("You are not near a vehicle!", "error")
+    else
+      QBCore.Functions.Notify("Vehicle is too healthy and needs better tools!", "error")
+    end
+  end
 end)
 
 RegisterNetEvent('qb-vehiclefailure:client:SyncWash', function(veh)
@@ -325,15 +333,15 @@ RegisterNetEvent('qb-vehiclefailure:client:RepairVehicleFull', function()
 			else
 				ShowEnginePos = true
 			end
-    	else
-      		if #(pos - vehpos) > 4.9 then
-        		QBCore.Functions.Notify(Lang:t("error.out_range_veh"), "error")
-      		else
-        		QBCore.Functions.Notify(Lang:t("error.inside_veh"), "error")
-      		end
+    else
+      if #(pos - vehpos) > 4.9 then
+        QBCore.Functions.Notify("You are too far from the vehicle!", "error")
+      else
+        QBCore.Functions.Notify("You cannot repair a vehicle engine from the inside!", "error")
+      end
 		end
-  	else
-    	QBCore.Functions.Notify(Lang:t("error.not_near_veh"), "error")
+  else
+    QBCore.Functions.Notify("You are not near a vehicle!", "error")
 	end
 end)
 
@@ -344,7 +352,7 @@ RegisterNetEvent('iens:repaira', function()
 		SetVehicleDirtLevel(vehicle)
 		SetVehicleUndriveable(vehicle, false)
 		WashDecalsFromVehicle(vehicle, 1.0)
-		QBCore.Functions.Notify(Lang:t("success.repaired_veh"))
+		notification("Vehicle repaired!")
 		SetVehicleFixed(vehicle)
 		healthBodyLast=1000.0
 		healthEngineLast=1000.0
@@ -352,16 +360,16 @@ RegisterNetEvent('iens:repaira', function()
 		SetVehicleEngineOn(vehicle, true, false )
 		return
 	else
-		QBCore.Functions.Notify(Lang:t("error.inside_veh_req"))
+		notification("You must be in a vehicle to repair it!")
 	end
 end)
 
 RegisterNetEvent('iens:besked', function()
-	QBCore.Functions.Notify(Lang:t("error.roadside_avail"))
+	notification("~r~There is roadside assistance available call that via your phone!")
 end)
 
 RegisterNetEvent('iens:notAllowed', function()
-	QBCore.Functions.Notify(Lang:t("error.no_permission"))
+	notification("~r~You don't have permission to repair vehicles")
 end)
 
 RegisterNetEvent('iens:repair', function()
@@ -378,21 +386,21 @@ RegisterNetEvent('iens:repair', function()
 				SetVehiclePetrolTankHealth(vehicle, 750.0)
 				healthEngineLast=cfg.cascadingFailureThreshold +5
 				healthPetrolTankLast=750.0
-				SetVehicleEngineOn(vehicle, true, false )
+					SetVehicleEngineOn(vehicle, true, false )
 				SetVehicleOilLevel(vehicle,(GetVehicleOilLevel(vehicle)/3)-0.5)
-				QBCore.Functions.Notify(Lang:t(('fix_message_%s'):format(fixMessagePos)))
+				notification("~g~" .. repairCfg.fixMessages[fixMessagePos] .. ", and now go to a garage!")
 				fixMessagePos = fixMessagePos + 1
 				if fixMessagePos > repairCfg.fixMessageCount then fixMessagePos = 1 end
-			else 
-				QBCore.Functions.Notify(Lang:t("error.veh_damaged"))
+			else
+				notification("~r~Your vehicle is too damaged!")
 			end
 		else
-			QBCore.Functions.Notify(Lang:t(('nofix_message_%s'):format(noFixMessagePos)))
+			notification("~y~" .. repairCfg.noFixMessages[noFixMessagePos] )
 			noFixMessagePos = noFixMessagePos + 1
 			if noFixMessagePos > repairCfg.noFixMessageCount then noFixMessagePos = 1 end
 		end
 	else
-		QBCore.Functions.Notify(Lang:t("error.inside_veh_req"))
+		notification("~y~You must be in a vehicle to repair it!")
 	end
 end)
 
@@ -665,3 +673,54 @@ CreateThread(function()
 		end
 	end
 end)
+
+
+
+
+local vehicleClassDisableControl = {
+    [0] = true,     --compacts
+    [1] = true,     --sedans
+    [2] = true,     --SUV's
+    [3] = true,     --coupes
+    [4] = true,     --muscle
+    [5] = true,     --sport classic
+    [6] = true,     --sport
+    [7] = true,     --super
+    [8] = false,    --motorcycle
+    [9] = true,     --offroad
+    [10] = true,    --industrial
+    [11] = true,    --utility
+    [12] = true,    --vans
+    [13] = false,   --bicycles
+    [14] = false,   --boats
+    [15] = false,   --helicopter
+    [16] = false,   --plane
+    [17] = true,    --service
+    [18] = true,    --emergency
+    [19] = false    --military
+}
+
+-- Main thread
+Citizen.CreateThread(function()
+    while true do
+        -- Loop forever and update every frame
+        Citizen.Wait(0)
+
+        -- Get player, vehicle and vehicle class
+        local player = GetPlayerPed(-1)
+        local vehicle = GetVehiclePedIsIn(player, false)
+        local vehicleClass = GetVehicleClass(vehicle)
+
+        -- Disable control if player is in the driver seat and vehicle class matches array
+        if ((GetPedInVehicleSeat(vehicle, -1) == player) and vehicleClassDisableControl[vehicleClass]) then
+            -- Check if vehicle is in the air and disable L/R and UP/DN controls
+            if IsEntityInAir(vehicle) then
+                DisableControlAction(2, 59)
+                DisableControlAction(2, 60)
+            end
+        end
+    end
+end)
+
+
+

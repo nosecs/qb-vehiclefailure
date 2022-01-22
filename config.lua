@@ -1,39 +1,40 @@
 BackEngineVehicles = {
-    [`ninef`] = true,
-    [`adder`] = true,
-    [`vagner`] = true,
-    [`t20`] = true,
-    [`infernus`] = true,
-    [`zentorno`] = true,
-    [`reaper`] = true,
-    [`comet2`] = true,
-    [`jester`] = true,
-    [`jester2`] = true,
-    [`cheetah`] = true,
-    [`cheetah2`] = true,
-    [`prototipo`] = true,
-    [`turismor`] = true,
-    [`pfister811`] = true,
-    [`ardent`] = true,
-    [`nero`] = true,
-    [`nero2`] = true,
-    [`tempesta`] = true,
-    [`vacca`] = true,
-    [`bullet`] = true,
-    [`osiris`] = true,
-    [`entityxf`] = true,
-    [`turismo2`] = true,
-    [`fmj`] = true,
-    [`re7b`] = true,
-    [`tyrus`] = true,
-    [`italigtb`] = true,
-    [`penetrator`] = true,
-    [`monroe`] = true,
-    [`ninef2`] = true,
-    [`stingergt`] = true,
-    [`surfer`] = true,
-    [`surfer2`] = true,
-    [`comet3`] = true,
+    'ninef',
+    'adder',
+    'vagner',
+    't20',
+    'infernus',
+    'zentorno',
+    'reaper',
+    'comet2',
+    'comet3',
+    'jester',
+    'jester2',
+    'cheetah',
+    'cheetah2',
+    'prototipo',
+    'turismor',
+    'pfister811',
+    'ardent',
+    'nero',
+    'nero2',
+    'tempesta',
+    'vacca',
+    'bullet',
+    'osiris',
+    'entityxf',
+    'turismo2',
+    'fmj',
+    're7b',
+    'tyrus',
+    'italigtb',
+    'penetrator',
+    'monroe',
+    'ninef2',
+    'stingergt',
+    'surfer',
+    'surfer2',
+    'comet3',
 }
 
 -- Configuration:
@@ -67,14 +68,14 @@ cfg = {
 
 	preventVehicleFlip = true,					-- If true, you can't turn over an upside down vehicle
 
-	sundayDriver = true,						-- If true, the accelerator response is scaled to enable easy slow driving. Will not prevent full throttle. Does not work with binary accelerators like a keyboard. Set to false to disable. The included stop-without-reversing and brake-light-hold feature does also work for keyboards.
+	sundayDriver = false,						-- If true, the accelerator response is scaled to enable easy slow driving. Will not prevent full throttle. Does not work with binary accelerators like a keyboard. Set to false to disable. The included stop-without-reversing and brake-light-hold feature does also work for keyboards.
 	sundayDriverAcceleratorCurve = 7.5,			-- The response curve to apply to the accelerator. Range 0.0 to 10.0. Higher values enables easier slow driving, meaning more pressure on the throttle is required to accelerate forward. Does nothing for keyboard drivers
 	sundayDriverBrakeCurve = 5.0,				-- The response curve to apply to the Brake. Range 0.0 to 10.0. Higher values enables easier braking, meaning more pressure on the throttle is required to brake hard. Does nothing for keyboard drivers
 
 	displayBlips = false,						-- Show blips for mechanics locations
 
 	compatibilityMode = false,					-- prevents other scripts from modifying the fuel tank health to avoid random engine failure with BVA 2.01 (Downside is it disabled explosion prevention)
-
+		
 	randomTireBurstInterval = 0,				-- Number of minutes (statistically, not precisely) to drive above 22 mph before you get a tire puncture. 0=feature is disabled
 
 
@@ -210,7 +211,25 @@ repairCfg = {
 		{name="Garage", id=446, r=25.0, x=437.0,   y=3568.0,  z=38.0}		-- Auto Shop, Grand Senora Desert
 	},
 
+	fixMessages = {
+        "You checked the oil level",
+        "You closed the oil spill with chewing gum",
+        "You made the oil hose with tape",
+        "you have temporarily stopped the oil leak",
+        "You kicked the bike and it works again",
+        "You removed some rust",
+        "You yelled at your car, and it works again"
+    },
     fixMessageCount = 7,
+
+    noFixMessages = {
+        "You looked at your oil level, and this looked normal",
+        "You looked at your bike, and nothing seems wrong",
+        "You looked at the duck tape on your oil hose and seemed fine",
+        "You turned the radio up. The weird engine noise is now gone",
+        "The rust remover you used had no effect",
+        "Never try to make something that isn't broken, but you didn't listen"
+    },
 	noFixMessageCount = 6
 }
 
